@@ -198,6 +198,10 @@ export class JmapClient {
       headers: this.auth.getAuthHeaders(),
     });
 
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Authentication failed (${response.status}): check your API credentials`);
+    }
+
     if (!response.ok) {
       throw new Error(`Failed to get session: ${response.statusText}`);
     }
@@ -219,13 +223,24 @@ export class JmapClient {
   }
 
   async makeRequest(request: JmapRequest): Promise<JmapResponse> {
-    const session = await this.getSession();
+    let session = await this.getSession();
 
-    const response = await fetch(session.apiUrl, {
+    let response = await fetch(session.apiUrl, {
       method: 'POST',
       headers: this.auth.getAuthHeaders(),
       body: JSON.stringify(request),
     });
+
+    // Retry once on auth failure — session may have expired
+    if (response.status === 401 || response.status === 403) {
+      this.session = null;
+      session = await this.getSession();
+      response = await fetch(session.apiUrl, {
+        method: 'POST',
+        headers: this.auth.getAuthHeaders(),
+        body: JSON.stringify(request),
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`JMAP request failed: ${response.statusText}`);
