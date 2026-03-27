@@ -1431,34 +1431,6 @@ describe('bulkDelete', () => {
   });
 });
 
-// ---------- getUserEmail ----------
-
-describe('getUserEmail', () => {
-  let client: JmapClient;
-
-  beforeEach(() => {
-    client = makeClient();
-  });
-
-  it('returns user email from default identity', async () => {
-    mock.method(client, 'getIdentities', async () => [
-      { id: 'id-1', email: 'me@example.com', mayDelete: false },
-    ]);
-
-    const email = await client.getUserEmail();
-    assert.equal(email, 'me@example.com');
-  });
-
-  it('returns fallback when getIdentities fails', async () => {
-    mock.method(client, 'getIdentities', async () => {
-      throw new Error('Identity/get not available');
-    });
-
-    const email = await client.getUserEmail();
-    assert.equal(email, 'user@example.com');
-  });
-});
-
 // ---------- getDefaultIdentity ----------
 
 describe('getDefaultIdentity', () => {

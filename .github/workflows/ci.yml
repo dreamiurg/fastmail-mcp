@@ -51,7 +51,7 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
       - name: Upload coverage
-        if: always()
+        if: success() || failure()
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
         with:
           fail_ci_if_error: true

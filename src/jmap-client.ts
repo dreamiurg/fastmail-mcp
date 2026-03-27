@@ -218,16 +218,6 @@ export class JmapClient {
     return this.session;
   }
 
-  async getUserEmail(): Promise<string> {
-    try {
-      const identity = await this.getDefaultIdentity();
-      return identity?.email || 'user@example.com';
-    } catch (error) {
-      // Fallback if Identity/get is not available
-      return 'user@example.com';
-    }
-  }
-
   async makeRequest(request: JmapRequest): Promise<JmapResponse> {
     const session = await this.getSession();
 
