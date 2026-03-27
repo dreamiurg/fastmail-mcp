@@ -138,6 +138,25 @@ export class JmapClient {
     this.auth = auth;
   }
 
+  /** Validate an email address: must contain @ and have no control characters. */
+  static validateEmailAddress(email: string): void {
+    const hasControlChar = email.split('').some((c) => {
+      const code = c.charCodeAt(0);
+      return code <= 31 || code === 127;
+    });
+    if (!email || !email.includes('@') || hasControlChar) {
+      throw new Error(`Invalid email address: ${email}`);
+    }
+  }
+
+  /** Validate all addresses in an array (no-op on undefined), throwing on the first invalid one. */
+  private static validateEmailAddresses(addrs: string[] | undefined): void {
+    if (!addrs) return;
+    for (const addr of addrs) {
+      JmapClient.validateEmailAddress(addr);
+    }
+  }
+
   /**
    * Extract the result from a JMAP method response, throwing on method-level errors.
    */
@@ -449,6 +468,10 @@ export class JmapClient {
     inReplyTo?: string[];
     references?: string[];
   }): Promise<string> {
+    JmapClient.validateEmailAddresses(email.to);
+    JmapClient.validateEmailAddresses(email.cc);
+    JmapClient.validateEmailAddresses(email.bcc);
+
     const session = await this.getSession();
 
     const identities = await this.getIdentities();
@@ -563,6 +586,10 @@ export class JmapClient {
     inReplyTo?: string[];
     references?: string[];
   }): Promise<string> {
+    JmapClient.validateEmailAddresses(email.to);
+    JmapClient.validateEmailAddresses(email.cc);
+    JmapClient.validateEmailAddresses(email.bcc);
+
     const session = await this.getSession();
 
     if (!email.to?.length && !email.subject && !email.textBody && !email.htmlBody) {
@@ -713,6 +740,10 @@ export class JmapClient {
       from?: string;
     },
   ): Promise<string> {
+    JmapClient.validateEmailAddresses(updates.to);
+    JmapClient.validateEmailAddresses(updates.cc);
+    JmapClient.validateEmailAddresses(updates.bcc);
+
     const session = await this.getSession();
     const existingEmail = await this.fetchExistingDraft(session, emailId);
 

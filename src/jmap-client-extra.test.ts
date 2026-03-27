@@ -1664,3 +1664,27 @@ describe('sendDraft edge cases', () => {
     assert.equal(rcptTo.length, 2);
   });
 });
+
+// ---------- validateEmailAddress ----------
+
+describe('validateEmailAddress', () => {
+  it('accepts valid email', () => {
+    assert.doesNotThrow(() => JmapClient.validateEmailAddress('user@example.com'));
+  });
+
+  it('rejects missing @', () => {
+    assert.throws(() => JmapClient.validateEmailAddress('noatsign'), /Invalid email/);
+  });
+
+  it('rejects control characters', () => {
+    assert.throws(() => JmapClient.validateEmailAddress('user\x00@evil.com'), /Invalid email/);
+  });
+
+  it('rejects newlines', () => {
+    assert.throws(() => JmapClient.validateEmailAddress('user\n@evil.com'), /Invalid email/);
+  });
+
+  it('rejects empty string', () => {
+    assert.throws(() => JmapClient.validateEmailAddress(''), /Invalid email/);
+  });
+});

@@ -24,6 +24,8 @@ const server = new Server(
   },
 );
 
+const MAX_BULK_OPERATION_SIZE = 100;
+
 let jmapClient: JmapClient | null = null;
 let contactsCalendarClient: ContactsCalendarClient | null = null;
 let caldavClient: CalDAVCalendarClient | null = null;
@@ -1464,6 +1466,12 @@ async function handleBulkMarkRead(client: JmapClient, args: ToolArgs): Promise<T
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
   }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
+  }
   await client.bulkMarkRead(emailIds as string[], read as boolean);
   return textResult(
     `${emailIds.length} emails ${read ? 'marked as read' : 'marked as unread'} successfully`,
@@ -1475,6 +1483,12 @@ async function handleBulkPin(client: JmapClient, args: ToolArgs): Promise<ToolRe
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
   }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
+  }
   await client.bulkPinEmails(emailIds as string[], pinned as boolean);
   return textResult(`${emailIds.length} emails ${pinned ? 'pinned' : 'unpinned'} successfully`);
 }
@@ -1483,6 +1497,12 @@ async function handleBulkMove(client: JmapClient, args: ToolArgs): Promise<ToolR
   const { emailIds, targetMailboxId } = args as Record<string, unknown>;
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
+  }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
   }
   if (!targetMailboxId) {
     throw new McpError(ErrorCode.InvalidParams, 'targetMailboxId is required');
@@ -1496,6 +1516,12 @@ async function handleBulkDelete(client: JmapClient, args: ToolArgs): Promise<Too
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
   }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
+  }
   await client.bulkDelete(emailIds as string[]);
   return textResult(`${emailIds.length} emails deleted successfully (moved to trash)`);
 }
@@ -1504,6 +1530,12 @@ async function handleBulkAddLabels(client: JmapClient, args: ToolArgs): Promise<
   const { emailIds, mailboxIds } = args as Record<string, unknown>;
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
+  }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
   }
   if (!mailboxIds || !Array.isArray(mailboxIds) || mailboxIds.length === 0) {
     throw new McpError(
@@ -1519,6 +1551,12 @@ async function handleBulkRemoveLabels(client: JmapClient, args: ToolArgs): Promi
   const { emailIds, mailboxIds } = args as Record<string, unknown>;
   if (!emailIds || !Array.isArray(emailIds) || emailIds.length === 0) {
     throw new McpError(ErrorCode.InvalidParams, 'emailIds array is required and must not be empty');
+  }
+  if (emailIds.length > MAX_BULK_OPERATION_SIZE) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Bulk operations are limited to ${MAX_BULK_OPERATION_SIZE} emails per call. Received ${emailIds.length}.`,
+    );
   }
   if (!mailboxIds || !Array.isArray(mailboxIds) || mailboxIds.length === 0) {
     throw new McpError(
