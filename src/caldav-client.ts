@@ -98,7 +98,8 @@ export function formatICalDate(raw: string | undefined): string | undefined {
 
 export function parseCalendarObject(obj: DAVCalendarObject): CalendarEvent {
   const vevent = extractVEvent(obj.data || '');
-  const title = parseICalValue(vevent, 'SUMMARY') || 'Untitled';
+  const rawTitle = parseICalValue(vevent, 'SUMMARY');
+  const title = rawTitle ? unescapeICalText(rawTitle) : 'Untitled';
   const description = parseICalValue(vevent, 'DESCRIPTION');
   const rawStart = parseICalValue(vevent, 'DTSTART');
   const rawEnd = parseICalValue(vevent, 'DTEND');
@@ -109,11 +110,20 @@ export function parseCalendarObject(obj: DAVCalendarObject): CalendarEvent {
     id: uid,
     url: obj.url || '',
     title,
-    description: description?.replace(/\\n/g, '\n').replace(/\\,/g, ',') || undefined,
+    description: description ? unescapeICalText(description) : undefined,
     start: formatICalDate(rawStart),
     end: formatICalDate(rawEnd),
-    location: location?.replace(/\\,/g, ',') || undefined,
+    location: location ? unescapeICalText(location) : undefined,
   };
+}
+
+/** Unescape iCalendar property values per RFC 5545 Section 3.3.11 */
+export function unescapeICalText(text: string): string {
+  return text
+    .replace(/\\n/g, '\n')
+    .replace(/\\,/g, ',')
+    .replace(/\\;/g, ';')
+    .replace(/\\\\/g, '\\');
 }
 
 /** Escape text for iCalendar property values per RFC 5545 Section 3.3.11 */

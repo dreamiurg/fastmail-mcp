@@ -102,8 +102,15 @@ export class ContactsCalendarClient extends JmapClient {
 
     try {
       const response = await this.makeRequest(request);
-      return this.getListResult(response, 0)[0];
+      const contact = this.getListResult(response, 0)[0];
+      if (!contact) {
+        throw new Error(`Contact with ID '${id}' not found`);
+      }
+      return contact;
     } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Contact with ID')) {
+        throw error;
+      }
       throw new Error(
         `Contact access not supported: ${error instanceof Error ? error.message : String(error)}. Try checking account permissions or enabling contacts API access in Fastmail settings.`,
       );
@@ -265,8 +272,15 @@ export class ContactsCalendarClient extends JmapClient {
 
     try {
       const response = await this.makeRequest(request);
-      return this.getListResult(response, 0)[0];
+      const event = this.getListResult(response, 0)[0];
+      if (!event) {
+        throw new Error(`Calendar event with ID '${id}' not found`);
+      }
+      return event;
     } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Calendar event with ID')) {
+        throw error;
+      }
       throw new Error(
         `Calendar event access not supported: ${error instanceof Error ? error.message : String(error)}. Try checking account permissions or enabling calendar API access in Fastmail settings.`,
       );

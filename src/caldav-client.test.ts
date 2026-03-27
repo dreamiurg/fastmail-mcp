@@ -7,6 +7,7 @@ import {
   formatICalDate,
   parseCalendarObject,
   parseICalValue,
+  unescapeICalText,
 } from './caldav-client.js';
 
 describe('extractVEvent', () => {
@@ -629,5 +630,36 @@ describe('escapeICalText', () => {
     const escaped = escapeICalText(malicious);
     assert.ok(!escaped.includes('\n'));
     assert.ok(!escaped.includes('\r'));
+  });
+});
+
+describe('unescapeICalText', () => {
+  it('unescapes \\n to newline', () => {
+    assert.equal(unescapeICalText('line1\\nline2'), 'line1\nline2');
+  });
+
+  it('unescapes \\, to comma', () => {
+    assert.equal(unescapeICalText('Room A\\, Building 1'), 'Room A, Building 1');
+  });
+
+  it('unescapes \\; to semicolon', () => {
+    assert.equal(unescapeICalText('a\\;b'), 'a;b');
+  });
+
+  it('unescapes \\\\ to backslash', () => {
+    assert.equal(unescapeICalText('a\\\\b'), 'a\\b');
+  });
+
+  it('handles multiple escape sequences in one string', () => {
+    assert.equal(unescapeICalText('line1\\nRoom A\\, Bldg\\;1'), 'line1\nRoom A, Bldg;1');
+  });
+
+  it('is inverse of escapeICalText for round-trip', () => {
+    const original = 'Meeting, Room 1; Floor 2\nSee you there\\';
+    assert.equal(unescapeICalText(escapeICalText(original)), original);
+  });
+
+  it('leaves plain strings unchanged', () => {
+    assert.equal(unescapeICalText('No special chars'), 'No special chars');
   });
 });

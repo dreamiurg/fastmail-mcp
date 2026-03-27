@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm](https://img.shields.io/npm/v/fastmail-mcp)](https://www.npmjs.com/package/fastmail-mcp)
 
-MCP server for the Fastmail API. Gives AI assistants access to email, contacts, and calendars via JMAP.
+MCP server for the Fastmail API. Gives AI assistants access to email, contacts, and calendars via JMAP (with CalDAV fallback for calendar operations).
 
 ## Features
 
@@ -190,7 +190,7 @@ Without these variables, the server uses JMAP only (calendar tools will fail if 
 
 ## Development
 
-```
+```text
 src/
 ├── index.ts              # MCP server entry point
 ├── auth.ts               # Authentication
